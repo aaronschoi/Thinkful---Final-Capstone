@@ -32,7 +32,7 @@ describe("US-05 - Finish an occupied table", () => {
       const response = await request(app)
         .delete("/tables/99/seat")
         .set("Accept", "application/json")
-        .send({ datum: {} });
+        .send({ datum: {} }); //why is this datum?
 
       expect(response.body.error).toContain("99");
       expect(response.status).toBe(404);
