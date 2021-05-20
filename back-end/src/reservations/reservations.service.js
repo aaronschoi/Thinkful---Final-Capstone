@@ -26,10 +26,19 @@ const list = () => {
     .select('*');
 };
 
+//issue #4
+const listByDate = reservation_date => {
+    return knex('reservations')
+    .select('*')
+    .orderBy( 'reservation_time' )
+    .where({ reservation_date })
+}
+
 module.exports = {
     create,
     read,
     update,
     destroy,
     list,
+    listByDate
 }

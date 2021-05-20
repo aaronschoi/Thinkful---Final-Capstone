@@ -144,9 +144,13 @@ const destroy = async (req, res) => {
 };
 
 const list = async (req, res) => {
+  const date = req.query.date;
+  if(date){
+    res.json({ data: await reservationService.listByDate(date) })
+  }else{
   res.json({
     data: await reservationService.list(),
-  });
+  });}
 };
 
 module.exports = {
