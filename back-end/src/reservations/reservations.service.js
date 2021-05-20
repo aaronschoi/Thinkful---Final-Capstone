@@ -1,8 +1,10 @@
 const knex = require('../db/connection');
 
 //CRUDL
-const create = () => {
-    return null;
+const create = (newReservation) => {
+    return knex('reservations')
+    .insert(newReservation, "*")
+    .then((createdReservations) => createdReservations[0])
 };
 
 const read = (reservation_id) => {
