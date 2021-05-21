@@ -33,6 +33,7 @@ const dataBodyExists = async (req, res, next) => {
   }
 };
 
+// issue #3
 const firstNameExists = async (req, res, next) => {
   const { first_name } = req.body.data;
   if (first_name && first_name !== "") {
@@ -45,6 +46,7 @@ const firstNameExists = async (req, res, next) => {
   }
 };
 
+// issue #3
 const lastNameExists = async (req, res, next) => {
   const { last_name } = req.body.data;
   if (last_name && last_name !== "") {
@@ -57,6 +59,7 @@ const lastNameExists = async (req, res, next) => {
   }
 };
 
+// issue #3
 const mobileNumberExists = async (req, res, next) => {
   const { mobile_number } = req.body.data;
   if (mobile_number && mobile_number !== "") {
@@ -69,6 +72,7 @@ const mobileNumberExists = async (req, res, next) => {
   }
 };
 
+// issue #3
 const reservationDateExists = async (req, res, next) => {
   const { reservation_date } = req.body.data;
   const dateRegex = new RegExp(
@@ -88,6 +92,37 @@ const reservationDateExists = async (req, res, next) => {
   }
 };
 
+// issue #5
+const reservationDateOccursInPast = (req, res, next) => {
+  const { reservation_date } = req.body.data;
+  const today = new Date();
+  const dateString = reservation_date.split('-');
+  const resDate = new Date(Number(dateString[0]),Number(dateString[1])-1,Number(dateString[2]),0,0,1);
+  if(resDate > today){//maybe >= if it needs to occur today too
+    return next();
+  }
+  else{
+    return next({
+      message: 'A reservation must be made for the future',
+      status: 400,
+    })
+  }
+};
+
+const reservationOccursOnATuesday = (req, res, next) => {
+  const { reservation_date } = req.body.data;
+  const dateString = reservation_date.split('-');
+  const resDate = new Date(Number(dateString[0]),Number(dateString[1])-1,Number(dateString[2]),0,0,1);
+  if(resDate.getDay() === 2) {
+    return next({
+      message: 'Sorry! We are closed on Tuesdays',
+      status: 400,
+    })
+  }
+
+};
+
+// issue #3
 const reservationTimeExists = async (req, res, next) => {
   const { reservation_time } = req.body.data;
   const timeRegex = new RegExp(/^[0-2][0-3]:[0-5][0-9]$/);
@@ -105,6 +140,7 @@ const reservationTimeExists = async (req, res, next) => {
   }
 };
 
+// issue #3
 const peopleExists = async (req, res, next) => {
   const { people } = req.body.data;
   if (people && Number(people) > 0) {
@@ -160,6 +196,8 @@ module.exports = {
     asyncErrorBoundary(lastNameExists),
     asyncErrorBoundary(mobileNumberExists),
     asyncErrorBoundary(reservationDateExists),
+    asyncErrorBoundary(reservationDateOccursInPast),
+    asyncErrorBoundary(reservationOccursOnATuesday),
     asyncErrorBoundary(reservationTimeExists),
     asyncErrorBoundary(peopleExists),
     asyncErrorBoundary(create),
