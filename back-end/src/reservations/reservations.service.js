@@ -32,7 +32,7 @@ const listByDate = reservation_date => {
     .select('*')
     .orderBy( 'reservation_time' )
     .where({ reservation_date })
-}
+};
 
 module.exports = {
     create,
@@ -41,4 +41,4 @@ module.exports = {
     destroy,
     list,
     listByDate
-}
+};

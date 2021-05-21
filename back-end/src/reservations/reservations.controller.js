@@ -107,7 +107,7 @@ const reservationTimeExists = async (req, res, next) => {
 
 const peopleExists = async (req, res, next) => {
   const { people } = req.body.data;
-  if (people && typeof people === "number" && people > 0) {
+  if (people && Number(people) > 0) {
     return next();
   } else {
     return next({
