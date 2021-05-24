@@ -1,6 +1,5 @@
 const tableService = require("./tables.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
-const knex = require("../db/connection");
 
 //validation
 //issue #8

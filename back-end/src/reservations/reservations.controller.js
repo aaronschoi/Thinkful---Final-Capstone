@@ -214,6 +214,7 @@ const create = async (req, res) => {
   res.status(201).json({ data: newReservation });
 };
 
+// issue #10
 const read = async (req, res) => {
   res.json({ data: await res.locals.reservation });
 };
