@@ -1,0 +1,26 @@
+[
+    {
+        "table_id": 1,
+        "table_name": "Sample Table 1",
+        "status": "open",
+        "capacity": 4,
+        "created_at": "2020-12-10T08:30:32.326Z",
+        "updated_at": "2020-12-10T08:30:32.326Z"
+    },
+    {
+        "table_id": 2,
+        "table_name": "Sample Table 2",
+        "status": "open",
+        "capacity": 4,
+        "created_at": "2020-12-10T08:31:32.326Z",
+        "updated_at": "2020-12-10T08:31:32.326Z"
+    },
+    {
+        "table_id": 3,
+        "table_name": "Sample Table 3",
+        "status": "open",
+        "capacity": 4,
+        "created_at": "2020-12-10T08:31:32.326Z",
+        "updated_at": "2020-12-10T08:31:32.326Z"
+    }
+]

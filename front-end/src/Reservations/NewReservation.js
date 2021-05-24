@@ -86,7 +86,7 @@ export default function NewReservation() {
       <div className="form-group">
         <label htmlFor="reservation_date">Reservation Date</label>
         <input
-          type="text"
+          type="date"
           className="form-control"
           name="reservation_date"
           id="reservation_date"
@@ -98,7 +98,9 @@ export default function NewReservation() {
       <div className="form-group">
         <label htmlFor="reservation_time">Reservation Time</label>
         <input
-          type="text"
+          type="time"
+          min="10:30"
+          max="21:30"
           className="form-control"
           name="reservation_time"
           id="reservation_time"
