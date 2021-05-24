@@ -92,40 +92,54 @@ const reservationDateExists = async (req, res, next) => {
   }
 };
 
-// issue #5
+// issue #5 and issue #6
 const reservationDateOccursInPast = (req, res, next) => {
   const { reservation_date } = req.body.data;
   const today = new Date();
-  const dateString = reservation_date.split('-');
-  const resDate = new Date(Number(dateString[0]),Number(dateString[1])-1,Number(dateString[2]),0,0,1);
-  if(resDate > today){//maybe >= if it needs to occur today too
+  const dateString = reservation_date.split("-");
+  const resDate = new Date(
+    Number(dateString[0]),
+    Number(dateString[1]) - 1,
+    Number(dateString[2]),
+    0,
+    0,
+    1
+  );
+  if (resDate > today) {
+    //maybe >= if it needs to occur today too
     return next();
-  }
-  else{
+  } else {
     return next({
-      message: 'A reservation must be made for the future',
+      message: "A reservation must be made for the future",
       status: 400,
-    })
+    });
   }
 };
 
 const reservationOccursOnATuesday = (req, res, next) => {
   const { reservation_date } = req.body.data;
-  const dateString = reservation_date.split('-');
-  const resDate = new Date(Number(dateString[0]),Number(dateString[1])-1,Number(dateString[2]),0,0,1);
-  if(resDate.getDay() === 2) {
+  const dateString = reservation_date.split("-");
+  const resDate = new Date(
+    Number(dateString[0]),
+    Number(dateString[1]) - 1,
+    Number(dateString[2]),
+    0,
+    0,
+    1
+  );
+  if (resDate.getDay() === 2) {
     return next({
-      message: 'Sorry! We are closed on Tuesdays',
+      message: "Sorry! We are closed on Tuesdays",
       status: 400,
-    })
+    });
   }
-
+  return next();
 };
 
 // issue #3
 const reservationTimeExists = async (req, res, next) => {
   const { reservation_time } = req.body.data;
-  const timeRegex = new RegExp(/^[0-2][0-3]:[0-5][0-9]$/);
+  const timeRegex = new RegExp(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/);
   if (
     reservation_time &&
     reservation_time !== "" &&
@@ -138,6 +152,39 @@ const reservationTimeExists = async (req, res, next) => {
       status: 400,
     });
   }
+};
+
+// issue #6
+const reservationTimeIsWithinBusinessHours = async (req, res, next) => {
+  const { reservation_time } = req.body.data;
+  const resTimeArray = reservation_time.split(":");
+  const hour = Number(resTimeArray[0]);
+  const minute = Number(resTimeArray[1]);
+  if (hour >= 9) {
+    if (hour === 9) {
+      if (minute >= 30) {
+        return next();
+      }
+    }
+    if (hour <= 21) {
+      if (hour === 21) {
+        if (minute <= 30) {
+          return next();
+        }
+      }
+      return next();
+    }
+  }
+  if (hour < 9) {
+    return next({
+      message: "We are not open yet!",
+      status: 400,
+    });
+  }
+  return next({
+    message: "Seating ends at 9:30 PM.",
+    status: 400,
+  });
 };
 
 // issue #3
@@ -181,12 +228,13 @@ const destroy = async (req, res) => {
 
 const list = async (req, res) => {
   const date = req.query.date;
-  if(date){
-    res.json({ data: await reservationService.listByDate(date) })
-  }else{
-  res.json({
-    data: await reservationService.list(),
-  });}
+  if (date) {
+    res.json({ data: await reservationService.listByDate(date) });
+  } else {
+    res.json({
+      data: await reservationService.list(),
+    });
+  }
 };
 
 module.exports = {
@@ -199,6 +247,7 @@ module.exports = {
     asyncErrorBoundary(reservationDateOccursInPast),
     asyncErrorBoundary(reservationOccursOnATuesday),
     asyncErrorBoundary(reservationTimeExists),
+    asyncErrorBoundary(reservationTimeIsWithinBusinessHours),
     asyncErrorBoundary(peopleExists),
     asyncErrorBoundary(create),
   ],

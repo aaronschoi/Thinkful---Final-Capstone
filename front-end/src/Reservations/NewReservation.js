@@ -31,10 +31,9 @@ export default function NewReservation() {
   const submitHandler = event => {
     event.preventDefault();
     const controller = new AbortController();
-    setButtonDisable(state => !state);
+    setButtonDisable(state => !state)
     createReservation(reservationData, controller.signal) //THIS WORKS !!! WOOO
     .catch(setResError)
-    setReservationData({...reservationData})
     setButtonDisable(state => !state)
   };
 
@@ -46,7 +45,7 @@ export default function NewReservation() {
 
   return (
     <div>
-    <ErrorAlert error={createResError} />
+    {createResError ? <ErrorAlert error={createResError} /> : null}
     <form onSubmit={submitHandler} onReset={cancelHandler}>
       <div className="form-group">
         <label htmlFor="first_name">First Name</label>
