@@ -13,26 +13,45 @@ const read = (reservation_id) => {
     .where({ reservation_id });
 };
 
-const update = () => {
-    return null;
+const update = (updatedReservation) => {
+    const { reservation_id } = updatedReservation;
+    return knex('reservations')
+    .select('*')
+    .where({ reservation_id })
+    .update(updatedReservation, '*')
 };
 
 const destroy = () => {
     return null;
 };
 
-const list = () => {
-    return knex('reservations')
-    .select('*');
+const list = (reservation_date) => {
+    return knex("reservations")
+    .where({reservation_date})
+    //.where("status", ["finished", "cancelled"])
+    .orderBy( "reservation_time" )
 };
 
 //issue #4
 const listByDate = reservation_date => {
     return knex('reservations')
-    .select('*')
     .orderBy( 'reservation_time' )
-    .where({ reservation_date })
+    .where("reservation_date", reservation_date)
+    .where("status", ["finished", "cancelled"])
+    //.select('*')
+    //.orderBy( 'reservation_time' )
+    //.where({ status :  })
 };
+
+const search = mobile_number => {
+    return knex("reservations")
+        .select('*')
+        .orderBy("reservation_date")
+      .whereRaw(
+        "translate(mobile_number, '() -', '') like ?",
+        `%${mobile_number.replace(/\D/g, "")}%`
+      )
+  }
 
 module.exports = {
     create,
@@ -40,5 +59,6 @@ module.exports = {
     update,
     destroy,
     list,
-    listByDate
+    listByDate,
+    search
 };

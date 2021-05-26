@@ -66,6 +66,7 @@ const create = async (req, res) => {
         status: "open"
     }
     const createdTable = await tableService.create(newTable)
+    console.log(createdTable)
     res.status(201).json({ data: createdTable })
 };
 

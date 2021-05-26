@@ -8,7 +8,9 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 //read
 const reservationIdExists = async (req, res, next) => {
   const { reservation_id } = req.params;
+  console.log(reservation_id)
   const specificReservationData = await reservationService.read(reservation_id);
+  console.log(specificReservationData)
   if (specificReservationData.length >= 1) {
     res.locals.reservation = specificReservationData;
     return next();
@@ -190,6 +192,7 @@ const reservationTimeIsWithinBusinessHours = async (req, res, next) => {
 // issue #3
 const peopleExists = async (req, res, next) => {
   const { people } = req.body.data;
+  
   if (people && Number(people) > 0) {
     return next();
   } else {
@@ -202,15 +205,22 @@ const peopleExists = async (req, res, next) => {
 
 //CRUDL functions
 const create = async (req, res) => {
-  const reservationData = ({
+  const {first_name,
+    last_name,
+    mobile_number,
+    reservation_date,
+    reservation_time,
+    people,} = req.body.data;
+  const newResData = {
     first_name,
     last_name,
     mobile_number,
     reservation_date,
     reservation_time,
     people,
-  } = req.body.data);
-  const newReservation = await reservationService.create(reservationData);
+    status: "booked",
+  }
+  const newReservation = await reservationService.create(newResData);
   res.status(201).json({ data: newReservation });
 };
 
@@ -220,7 +230,18 @@ const read = async (req, res) => {
 };
 
 const update = async (req, res) => {
-  return null;
+  //res.locals.reservation
+  const { reservation_option } = req.params;
+  if(reservation_option === "seat"){
+    res.json({ data: "seat" })
+  }else if(reservation_option === "edit") {
+    res.json({ data: "edit" })
+  }else{
+    next({
+      message: "invalid access point",
+      status: 404
+    })
+  }
 };
 
 const destroy = async (req, res) => {
@@ -228,14 +249,21 @@ const destroy = async (req, res) => {
 };
 
 const list = async (req, res) => {
-  const date = req.query.date;
-  if (date) {
-    res.json({ data: await reservationService.listByDate(date) });
-  } else {
+  // const date = req.query.date;
+  // const mobile_number = req.query.mobile_phone;
+  // if (date) {
+  //   const dataByDate = await reservationService.listByDate(date);
+  //   res.json({ data: dataByDate });
+  // } else if (mobile_number) {
+  //   const dataByPhone = await reservationService.search(mobile_number);
+  //   console.log(dataByPhone)
+  //   res.json({ data: dataByPhone });
+  // } else {
+    const data = await (req.query.mobile_number ? reservationService.search(req.query.mobile_number) : reservationService.list(req.query.date))
     res.json({
-      data: await reservationService.list(),
+      data
     });
-  }
+  // }
 };
 
 module.exports = {
@@ -252,8 +280,8 @@ module.exports = {
     asyncErrorBoundary(peopleExists),
     asyncErrorBoundary(create),
   ],
-  read: [asyncErrorBoundary(reservationIdExists), asyncErrorBoundary(read)],
-  update,
+  //read: [asyncErrorBoundary(reservationIdExists), asyncErrorBoundary(read)],
+  update: [ asyncErrorBoundary(update)],
   delete: [asyncErrorBoundary(destroy)],
   list: [asyncErrorBoundary(list)],
 };

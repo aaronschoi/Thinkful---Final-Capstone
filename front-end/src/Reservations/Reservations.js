@@ -1,6 +1,15 @@
 import React from 'react';
 
 export default function Reservation( { reservations } ) {
+
+    const cancelHandler = event => {
+        event.preventDefault();
+        const rock = window.confirm("Do you really want to change this?");
+        if(rock){
+            
+        }
+    }
+
     return (
         <table className='table'>
             <thead>
@@ -11,10 +20,13 @@ export default function Reservation( { reservations } ) {
                 <th scope='col'>Reservation Day</th>
                 <th scope='col'>Reservation Time</th>
                 <th scope='col'>Number of People</th>
+                <th scope='col'>Status</th>
+                <th scope='col'>Options</th>
             </tr>
             </thead>
             <tbody>
-                {reservations.map(({first_name, last_name, mobile_number, reservation_date, reservation_time, people}, index)=> {
+                {reservations.map(({reservation_id, first_name, last_name, mobile_number, reservation_date, reservation_time, people,status}, index)=> {
+                    if(status !== "finished"){
                     return(
                         <tr key={index}>
                             <td>{first_name}</td>
@@ -23,8 +35,12 @@ export default function Reservation( { reservations } ) {
                             <td>{reservation_date}</td>
                             <td>{reservation_time}</td>
                             <td>{people}</td>
+                            <td>{status}</td>
+                            <td><a className="btn btn-primary" href={`/reservations/${reservation_id}/edit`} role="button">Edit</a>
+                            {status === "booked" ? <a className="btn btn-primary" href={`/reservations/${reservation_id}/seat`} role="button">Seat</a> : null}
+                            <button type="button" className="btn btn-danger" onClick={cancelHandler}>Cancel</button></td>
                         </tr>
-                    )
+                    )}
                 })}
             </tbody>
         </table>
