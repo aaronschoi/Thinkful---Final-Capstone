@@ -32,7 +32,12 @@ const dataBodyExists = async (req, res, next) => {
 //issue #11
 const reservationIdExists = async (req, res, next) => {
   const { reservation_id } = req.body.data;
-  if (reservation_id && reservation_id !== "" && reservation_id == Number(reservation_id) && Number(reservation_id) > 0) {
+  if (
+    reservation_id &&
+    reservation_id !== "" &&
+    reservation_id == Number(reservation_id) &&
+    Number(reservation_id) > 0
+  ) {
     const reservation = await tableService.readRes(reservation_id);
     if (reservation) {
       res.locals.reservation = reservation;
@@ -53,13 +58,12 @@ const reservationIdExists = async (req, res, next) => {
 
 //issue #11
 const capacityCheck = async (req, res, next) => {
-  const { table_id, table_option } = req.params;
+  const { table_option } = req.params;
   const { people } = res.locals.reservation;
+  const { status, capacity } = res.locals.table;
   if (table_option === "seat") {
-    const table = await tableService.read(table_id);
-    res.locals.table = table;
-    if (table.status === "open") {
-      if (table.capacity >= people) {
+    if (status === "open") {
+      if (capacity >= people) {
         return next();
       } else {
         return next({
@@ -108,6 +112,19 @@ const capacityExists = async (req, res, next) => {
   }
 };
 
+//issue #7
+const notOccupied = async (req, res, next) => {
+  const { status, capacity } = res.locals.table;
+  if (status === "occupied") {
+    return next();
+  } else {
+    return next({
+      message: "not occupied",
+      status: 400,
+    });
+  }
+};
+
 //CRUDL functions
 //issue #8
 const create = async (req, res) => {
@@ -141,8 +158,13 @@ const update = async (req, res) => {
   res.json({ data: updatedTable });
 };
 
+//issue #7
 const destroy = async (req, res) => {
-  return null;
+ const newTable = {
+   ...res.locals.table, status: "open"
+ };
+ const openedTable = await tableService.destroy(newTable)
+ res.status(200).json({ data: openedTable })
 };
 
 //issue #9
@@ -161,11 +183,16 @@ module.exports = {
   ],
   read: [asyncErrorBoundary(tableExists), asyncErrorBoundary(read)],
   update: [
+    asyncErrorBoundary(tableExists),
     asyncErrorBoundary(dataBodyExists),
     asyncErrorBoundary(reservationIdExists),
     asyncErrorBoundary(capacityCheck),
     asyncErrorBoundary(update),
   ],
-  delete: [asyncErrorBoundary(destroy)],
+  delete: [
+    asyncErrorBoundary(tableExists),
+    asyncErrorBoundary(notOccupied),
+    asyncErrorBoundary(destroy),
+  ],
   list: [asyncErrorBoundary(list)],
 };

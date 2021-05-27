@@ -1,3 +1,4 @@
+const { KnexTimeoutError } = require('knex');
 const knex = require('../db/connection');
 
 //CRUDL
@@ -37,8 +38,14 @@ const update = async (updatedTable) => {
     return read(table_id)
 };
 
-const destroy = () => {
-    return null;
+//issue #7
+const destroy = async (openedTable) => {
+    const {table_id} = openedTable;
+    await knex('tables')
+    .where({table_id})
+    .update(openedTable, '*')
+
+    return read(table_id)
 };
 
 //issue #9
