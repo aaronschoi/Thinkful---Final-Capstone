@@ -8,10 +8,9 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 //read
 const reservationIdExists = async (req, res, next) => {
   const { reservation_id } = req.params;
-  console.log(reservation_id)
-  const specificReservationData = await reservationService.read(reservation_id);
-  console.log(specificReservationData)
-  if (specificReservationData.length >= 1) {
+  const specificReservationData = await reservationService.read(Number(reservation_id));
+  console.log(reservation_id && specificReservationData ? true:false)
+  if (reservation_id && reservation_id !== "" && specificReservationData) {
     res.locals.reservation = specificReservationData;
     return next();
   } else {
@@ -162,8 +161,8 @@ const reservationTimeIsWithinBusinessHours = async (req, res, next) => {
   const resTimeArray = reservation_time.split(":");
   const hour = Number(resTimeArray[0]);
   const minute = Number(resTimeArray[1]);
-  if (hour >= 9) {
-    if (hour === 9) {
+  if (hour >= 10) {
+    if (hour === 10) {
       if (minute >= 30) {
         return next();
       }
@@ -177,7 +176,7 @@ const reservationTimeIsWithinBusinessHours = async (req, res, next) => {
       return next();
     }
   }
-  if (hour < 9) {
+  if (hour <= 10 && minute < 30) {
     return next({
       message: "We are not open yet!",
       status: 400,
@@ -192,8 +191,7 @@ const reservationTimeIsWithinBusinessHours = async (req, res, next) => {
 // issue #3
 const peopleExists = async (req, res, next) => {
   const { people } = req.body.data;
-  
-  if (people && Number(people) > 0) {
+  if (people && typeof people === "number" && people > 0) {
     return next();
   } else {
     return next({
@@ -226,7 +224,8 @@ const create = async (req, res) => {
 
 // issue #10
 const read = async (req, res) => {
-  res.json({ data: await res.locals.reservation });
+  const data = res.locals.reservation
+  res.status(200).json({data});
 };
 
 const update = async (req, res) => {
@@ -249,21 +248,9 @@ const destroy = async (req, res) => {
 };
 
 const list = async (req, res) => {
-  // const date = req.query.date;
-  // const mobile_number = req.query.mobile_phone;
-  // if (date) {
-  //   const dataByDate = await reservationService.listByDate(date);
-  //   res.json({ data: dataByDate });
-  // } else if (mobile_number) {
-  //   const dataByPhone = await reservationService.search(mobile_number);
-  //   console.log(dataByPhone)
-  //   res.json({ data: dataByPhone });
-  // } else {
-    const data = await (req.query.mobile_number ? reservationService.search(req.query.mobile_number) : reservationService.list(req.query.date))
-    res.json({
-      data
-    });
-  // }
+    const {mobile_number, date} = req.query;
+    const data = await (mobile_number ? reservationService.search(mobile_number) : reservationService.list(date))
+    res.json({data});
 };
 
 module.exports = {
@@ -280,7 +267,7 @@ module.exports = {
     asyncErrorBoundary(peopleExists),
     asyncErrorBoundary(create),
   ],
-  //read: [asyncErrorBoundary(reservationIdExists), asyncErrorBoundary(read)],
+  read: [asyncErrorBoundary(reservationIdExists), asyncErrorBoundary(read)],
   update: [ asyncErrorBoundary(update)],
   delete: [asyncErrorBoundary(destroy)],
   list: [asyncErrorBoundary(list)],

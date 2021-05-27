@@ -6,12 +6,12 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const tableExists = async (req, res, next) => {
   const { table_id } = req.params;
   const data = await tableService.read(Number(table_id));
-  if (data.length >= 1) {
+  if (data) {
     res.locals.table = data;
     return next();
   } else {
     return next({
-      message: "The Table does not Exist",
+      message: `The Table ${table_id} does not Exist`,
       status: 404,
     });
   }
@@ -25,6 +25,59 @@ const dataBodyExists = async (req, res, next) => {
     return next({
       message: "Body of Data does not exist",
       status: 400,
+    });
+  }
+};
+
+//issue #11
+const reservationIdExists = async (req, res, next) => {
+  const { reservation_id } = req.body.data;
+  if (reservation_id && reservation_id !== "" && reservation_id == Number(reservation_id) && Number(reservation_id) > 0) {
+    const reservation = await tableService.readRes(reservation_id);
+    if (reservation) {
+      res.locals.reservation = reservation;
+      return next();
+    } else {
+      return next({
+        message: `Reservation ${reservation_id} does not exist.`,
+        status: 404,
+      });
+    }
+  } else {
+    return next({
+      message: "Please input an existing reservation_id",
+      status: 400,
+    });
+  }
+};
+
+//issue #11
+const capacityCheck = async (req, res, next) => {
+  const { table_id, table_option } = req.params;
+  const { people } = res.locals.reservation;
+  if (table_option === "seat") {
+    const table = await tableService.read(table_id);
+    res.locals.table = table;
+    if (table.status === "open") {
+      if (table.capacity >= people) {
+        return next();
+      } else {
+        return next({
+          message:
+            "This table does not have the capacity to seat that many people",
+          status: 400,
+        });
+      }
+    } else {
+      return next({
+        message: "This table is occupied",
+        status: 400,
+      });
+    }
+  } else {
+    return next({
+      message: "Invalid Path",
+      status: 404,
     });
   }
 };
@@ -45,38 +98,47 @@ const tableNameExists = async (req, res, next) => {
 //issue #8
 const capacityExists = async (req, res, next) => {
   const { capacity } = req.body.data;
-  if(capacity && !isNaN(capacity) && capacity > 0){
-  return next();
-  }
-  else{
-      return next({
-        message: 'The table must have a capacity greater than zero',
-        status: 400,
-      })
+  if (capacity && !isNaN(capacity) && capacity > 0) {
+    return next();
+  } else {
+    return next({
+      message: "The table must have a capacity greater than zero",
+      status: 400,
+    });
   }
 };
 
 //CRUDL functions
 //issue #8
 const create = async (req, res) => {
-    const { table_name, capacity } = req.body.data;
-    const newTable = {
-        table_name: table_name,
-        capacity: capacity,
-        status: "open"
-    }
-    const createdTable = await tableService.create(newTable)
-    console.log(createdTable)
-    res.status(201).json({ data: createdTable })
+  const { table_name, capacity } = req.body.data;
+  const newTable = {
+    table_name: table_name,
+    capacity: capacity,
+    status: "open",
+  };
+  const createdTable = await tableService.create(newTable);
+  res.status(201).json({ data: createdTable });
 };
 
 //issue #8
 const read = async (req, res) => {
-  res.json({ data: res.locals.table })
+  res.json({ data: res.locals.table });
 };
 
 const update = async (req, res) => {
-  return null;
+  const { reservation_id } = req.body.data;
+  const { table_name, capacity } = res.locals.table;
+  const { table_id } = req.params;
+  const tableUpdate = {
+    table_id,
+    table_name,
+    capacity,
+    status: "occupied",
+    reservation_id,
+  };
+  const updatedTable = await tableService.update(tableUpdate);
+  res.json({ data: updatedTable });
 };
 
 const destroy = async (req, res) => {
@@ -95,12 +157,15 @@ module.exports = {
     asyncErrorBoundary(dataBodyExists),
     asyncErrorBoundary(tableNameExists),
     asyncErrorBoundary(capacityExists),
-    asyncErrorBoundary(create) ],
-  read: [
-    asyncErrorBoundary(tableExists),
-    asyncErrorBoundary(read),
+    asyncErrorBoundary(create),
   ],
-  update,
+  read: [asyncErrorBoundary(tableExists), asyncErrorBoundary(read)],
+  update: [
+    asyncErrorBoundary(dataBodyExists),
+    asyncErrorBoundary(reservationIdExists),
+    asyncErrorBoundary(capacityCheck),
+    asyncErrorBoundary(update),
+  ],
   delete: [asyncErrorBoundary(destroy)],
   list: [asyncErrorBoundary(list)],
 };

@@ -8,15 +8,12 @@ const create = (newReservation) => {
 };
 
 const read = (reservation_id) => {
-    return knex('reservations')
-    .select('*')
-    .where({ reservation_id });
+    return knex('reservations').where({ reservation_id }).first();
 };
 
 const update = (updatedReservation) => {
     const { reservation_id } = updatedReservation;
     return knex('reservations')
-    .select('*')
     .where({ reservation_id })
     .update(updatedReservation, '*')
 };
@@ -28,19 +25,8 @@ const destroy = () => {
 const list = (reservation_date) => {
     return knex("reservations")
     .where({reservation_date})
-    //.where("status", ["finished", "cancelled"])
-    .orderBy( "reservation_time" )
-};
-
-//issue #4
-const listByDate = reservation_date => {
-    return knex('reservations')
-    .orderBy( 'reservation_time' )
-    .where("reservation_date", reservation_date)
-    .where("status", ["finished", "cancelled"])
-    //.select('*')
-    //.orderBy( 'reservation_time' )
-    //.where({ status :  })
+    .where("status", "booked")
+    .orderBy( "reservation_time" ); //issue #4
 };
 
 const search = mobile_number => {
@@ -59,6 +45,5 @@ module.exports = {
     update,
     destroy,
     list,
-    listByDate,
     search
 };

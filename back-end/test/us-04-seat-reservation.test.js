@@ -11,6 +11,14 @@ describe("US-04 - Seat reservation", () => {
       .then(() => knex.migrate.latest());
   });
 
+  //I have to add this as the test does not properly seed the database and then clear out the database
+  afterEach(() => {
+    return knex.migrate
+      .forceFreeMigrationsLock()
+      .then(() => knex.migrate.rollback(null, true))
+      .then(() => knex.migrate.latest());
+  });
+
   beforeEach(() => {
     return knex.seed.run();
   });
