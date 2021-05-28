@@ -1,5 +1,10 @@
-const { KnexTimeoutError } = require('knex');
 const knex = require('../db/connection');
+
+const readAll = (table_id) => {
+    return knex('tables as t')
+    .join('reservations as r', 't.reservation_id', 'r.reservation_id')
+    .where({table_id})
+} 
 
 //CRUDL
 const create = (newTable) => {
@@ -29,23 +34,32 @@ const readByCapacity = (capacity, table_id) => {
     .where({table_id});
 };
 
-const update = async (updatedTable) => {
-    const {table_id} = updatedTable;
+const update = async (updatedTable, updatedReservation) => {
+    const {table_id, reservation_id} = updatedTable;
     await knex('tables')
     .where({table_id})
     .update(updatedTable, '*');
+
+    await knex('reservations')
+    .where({reservation_id})
+    .update(updatedReservation, '*')
 
     return read(table_id)
 };
 
 //issue #7
-const destroy = async (openedTable) => {
+const destroy = async (openedTable, finishedReservation) => {
     const {table_id} = openedTable;
+    const {reservation_id} = finishedReservation;
     await knex('tables')
     .where({table_id})
-    .update(openedTable, '*')
+    .update(openedTable, '*');
 
-    return read(table_id)
+    await knex('reservations')
+    .where({reservation_id})
+    .update(finishedReservation, '*');
+
+    return readAll(table_id);
 };
 
 //issue #9

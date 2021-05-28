@@ -11,6 +11,7 @@ export default function NewReservation() {
     reservation_date: "",
     reservation_time: "",
     people: 0,
+    status: "booked",
   };
   const [reservationData, setReservationData] = useState({
     ...defaultReservationData,

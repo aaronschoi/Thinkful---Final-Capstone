@@ -11,11 +11,13 @@ const read = (reservation_id) => {
     return knex('reservations').where({ reservation_id }).first();
 };
 
-const update = (updatedReservation) => {
+const update = async (updatedReservation) => {
     const { reservation_id } = updatedReservation;
-    return knex('reservations')
+    await knex('reservations')
     .where({ reservation_id })
     .update(updatedReservation, '*')
+
+    return read(reservation_id)
 };
 
 const destroy = () => {
@@ -23,10 +25,11 @@ const destroy = () => {
 };
 
 const list = (reservation_date) => {
+    if(reservation_date){
     return knex("reservations")
     .where({reservation_date})
-    .where("status", "booked")
-    .orderBy( "reservation_time" ); //issue #4
+    //.where("status", ["booked", "seated"] )
+    .orderBy( "reservation_time" );} //issue #4
 };
 
 const search = mobile_number => {

@@ -39,6 +39,12 @@ const reservationIdExists = async (req, res, next) => {
     Number(reservation_id) > 0
   ) {
     const reservation = await tableService.readRes(reservation_id);
+    if (reservation.status === "seated") {
+      return next({
+        message: "Reservation is already seated",
+        status: 400,
+      });
+    }
     if (reservation) {
       res.locals.reservation = reservation;
       return next();
@@ -154,17 +160,25 @@ const update = async (req, res) => {
     status: "occupied",
     reservation_id,
   };
-  const updatedTable = await tableService.update(tableUpdate);
+  const reservationUpdate = { ...res.locals.reservation, status: "seated" };
+  const updatedTable = await tableService.update(tableUpdate, reservationUpdate);
   res.json({ data: updatedTable });
 };
 
 //issue #7
 const destroy = async (req, res) => {
- const newTable = {
-   ...res.locals.table, status: "open"
- };
- const openedTable = await tableService.destroy(newTable)
- res.status(200).json({ data: openedTable })
+  const {reservation_id} = req.body.data;
+  const newTable = {
+    ...res.locals.table,
+    status: "open",
+  };
+  const reservation = await tableService.readRes(reservation_id)
+  const updatedReservation = {
+    ...reservation,
+    status: "finished",
+  }
+  const openedTable = await tableService.destroy(newTable, updatedReservation);
+  res.status(200).json({ data: openedTable });
 };
 
 //issue #9
