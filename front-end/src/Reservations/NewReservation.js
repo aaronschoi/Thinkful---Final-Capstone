@@ -1,23 +1,24 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { createReservation } from "../utils/api";
+import { createReservation, updateReservation } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
-export default function NewReservation() {
-  const defaultReservationData = {
-    first_name: "",
-    last_name: "",
-    mobile_number: "",
-    reservation_date: "",
-    reservation_time: "",
-    people: 0,
-    status: "booked",
-  };
+export default function NewReservation({ reservation }) {
+  const defaultReservationData = reservation
+    ? reservation
+    : {
+        first_name: "",
+        last_name: "",
+        mobile_number: "",
+        reservation_date: "",
+        reservation_time: "",
+        people: 0,
+        status: "booked",
+      };
   const [reservationData, setReservationData] = useState({
     ...defaultReservationData,
   });
   const [createResError, setResError] = useState(null);
-  const [buttonDisable, setButtonDisable] = useState(false);
   const history = useHistory();
 
   const changeHandler = (event) => {
@@ -31,27 +32,35 @@ export default function NewReservation() {
   const submitHandler = (event) => {
     event.preventDefault();
     const controller = new AbortController();
-    setButtonDisable((state) => !state);
-    createReservation(reservationData, controller.signal) //THIS WORKS !!! WOOO  
-    .catch(setResError);
-    setButtonDisable((state) => !state);
+    if (reservation) {
+      updateReservation(reservationData, controller.signal) //THIS WORKS !!! WOOO
+        .then(() => history.push("/"))
+        .catch(setResError);
+    } else {
+      createReservation(reservationData, controller.signal) //THIS WORKS !!! WOOO
+        .then(() => history.push("/"))
+        .catch(setResError);
+    }
+    return () => controller.abort();
   };
 
   const cancelHandler = (event) => {
     event.preventDefault();
-    setButtonDisable((state) => !state);
+    const controller = new AbortController();
     history.goBack();
+    return () => controller.abort();
   };
 
   return (
     <div>
+      {reservation ? <h1>Edit Reservation</h1> : <h1>New Reservation</h1>}
       <ErrorAlert error={createResError} />
       <form onSubmit={submitHandler} onReset={cancelHandler}>
         <div className="form-group">
           <label htmlFor="first_name">First Name</label>
           <input
             type="text"
-            class="form-control"
+            className="form-control"
             name="first_name"
             id="first_name"
             placeholder="First Name"
@@ -123,18 +132,10 @@ export default function NewReservation() {
             onChange={changeHandler}
           />
         </div>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={buttonDisable}
-        >
+        <button type="submit" className="btn btn-primary m-1">
           Submit
         </button>
-        <button
-          type="reset"
-          className="btn btn-primary"
-          disabled={buttonDisable}
-        >
+        <button type="reset" className="btn btn-danger m-1">
           Cancel
         </button>
       </form>

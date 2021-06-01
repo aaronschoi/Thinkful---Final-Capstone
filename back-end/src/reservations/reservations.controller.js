@@ -25,7 +25,6 @@ const reservationIdExists = async (req, res, next) => {
 //create
 // issue #3
 const dataBodyExists = async (req, res, next) => {
-  console.log
   if (req.body.data) {
     return next();
   } else {
@@ -200,7 +199,7 @@ const reservationTimeIsWithinBusinessHours = async (req, res, next) => {
 
 // issue #3
 const peopleExists = async (req, res, next) => {
-  if(req.params.reservation_option === "status") return next();
+  if(req.params.reservation_option) return next();
   const { people } = req.body.data;
   if (people && typeof people === "number" && people > 0) {
     return next();
@@ -214,8 +213,8 @@ const peopleExists = async (req, res, next) => {
 
 //issue #12
 const statusCheckforPOST = async (req, res, next) => {
+  if(req.body.data.status){
   const { status } = req.body.data;
-  console.log(status)
   if (status === "booked") {
     return next();
   } else {
@@ -223,6 +222,9 @@ const statusCheckforPOST = async (req, res, next) => {
       message: `Status must be 'booked' and not ${status}`,
       status: 400,
     });
+  }}
+  else {
+    return next();
   }
 };
 
@@ -309,10 +311,14 @@ const update = async (req, res) => {
 
 const list = async (req, res) => {
   const { mobile_number, date } = req.query;
-  const data = await (mobile_number
-    ? reservationService.search(mobile_number)
-    : reservationService.list(date));
-  res.json({ data });
+  if(mobile_number) {
+    const data = await reservationService.search(mobile_number);
+    res.json({data});
+  }
+  else{
+    const data = await reservationService.list(date);
+    res.json({data})
+  }
 };
 
 module.exports = {
@@ -332,6 +338,7 @@ module.exports = {
   ],
   read: [asyncErrorBoundary(reservationIdExists), asyncErrorBoundary(read)],
   update: [
+    asyncErrorBoundary(reservationIdExists),
     asyncErrorBoundary(dataBodyExists),
     asyncErrorBoundary(firstNameExists),
     asyncErrorBoundary(lastNameExists),
@@ -342,7 +349,6 @@ module.exports = {
     asyncErrorBoundary(reservationTimeExists),
     asyncErrorBoundary(reservationTimeIsWithinBusinessHours),
     asyncErrorBoundary(peopleExists),
-    asyncErrorBoundary(reservationIdExists),
     asyncErrorBoundary(statusCheckForPUT),
     asyncErrorBoundary(statusCheckOfRes),
     asyncErrorBoundary(update),

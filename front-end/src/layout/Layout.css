@@ -1,3 +1,7 @@
+.height-full {
+  height: 100vh;
+}
+
 .side-bar {
   background-color: #393a44;
   min-width: 200px;

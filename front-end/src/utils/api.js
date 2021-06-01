@@ -122,3 +122,41 @@
      []
    );
  }
+
+ export async function deleteTable(table_id, signal) {
+  const url = `${API_BASE_URL}/tables/${table_id}/seat`;
+  const options = { method: "DELETE", signal };
+  return await fetchJson(url, options);
+}
+
+export async function updateReservation(reservation, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservation.reservation_id}`;
+  return await fetchJson(
+    url,
+    {
+      body: JSON.stringify({ data: reservation }),
+      headers,
+      method: "PUT",
+      signal,
+    },
+    []
+  )
+    .then(formatReservationDate)
+    .then(formatReservationTime);
+}
+
+export async function cancelReservation(reservation, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservation.reservation_id}/status`;
+  return await fetchJson(
+    url,
+    {
+      body: JSON.stringify({ data: { ...reservation, status: "cancelled" }}),
+      headers,
+      method: "PUT",
+      signal,
+    },
+    []
+  )
+    .then(formatReservationDate)
+    .then(formatReservationTime);
+}

@@ -28,7 +28,7 @@ export default function NewTable() {
     event.preventDefault();
     const controller = new AbortController();
     setButtonDisable(state => !state)
-    createTable(tableData, controller.signal) //THIS WORKS !!! WOOO
+    createTable(tableData, controller.signal)
     .then(history.push('/'))
     .catch(setTableError)
     setButtonDisable(state => !state)
@@ -42,13 +42,14 @@ export default function NewTable() {
 
   return (
     <div>
+    <h1>New Table</h1>
     {createTableError ? <ErrorAlert error={createTableError} /> : null}
     <form onSubmit={submitHandler} onReset={cancelHandler}>
       <div className="form-group">
         <label htmlFor="table_name">Table Name</label>
         <input
           type="text"
-          class="form-control"
+          className="form-control"
           name="table_name"
           id="table_name"
           placeholder="Table Name"
@@ -68,10 +69,10 @@ export default function NewTable() {
           onChange={changeHandler}
         />
       </div>
-      <button type="submit" className="btn btn-primary" disabled={buttonDisable}>
+      <button type="submit" className="btn btn-primary m-1" disabled={buttonDisable}>
         Submit
       </button>
-      <button type="reset" className="btn btn-primary" disabled={buttonDisable}>
+      <button type="reset" className="btn btn-danger m-1" disabled={buttonDisable}>
         Cancel
       </button>
     </form>

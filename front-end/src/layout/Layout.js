@@ -13,7 +13,7 @@ import "./Layout.css";
  */
 export default function Layout() {
   return (
-    <div className="container-fluid">
+    <div className="container-fluid height-full">
       <div className="row h-100">
         <div className="col-md-2 side-bar">
           <Menu />

@@ -29,8 +29,6 @@ export default function Dashboard() {
     return () => abortController.abort();
   };
 
-  useEffect(loadReservations, [dateAugment]);
-
   const loadTables = () => {
     const abortController = new AbortController();
     setTablesError(null);
@@ -40,7 +38,12 @@ export default function Dashboard() {
     return () => abortController.abort();
   };
 
-  useEffect(loadTables, [])
+  const loadBoth = () => {
+    loadReservations();
+    loadTables();
+  };
+
+  useEffect(loadBoth, [dateAugment, tables])
 
   //previous/today/next buttons
   const buttonSetDate = (event) => {
@@ -83,7 +86,8 @@ export default function Dashboard() {
       </div>
       <ErrorAlert error={tablesError} />
       <div className="tables">
-      <Table tables={tables} />
+      {tables.length < 1 ? <p>Loading...</p> :
+      <Table tables={tables} />}
       </div>
       </div>
     </main>
