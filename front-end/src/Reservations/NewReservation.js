@@ -109,8 +109,8 @@ export default function NewReservation({ reservation }) {
           <label htmlFor="reservation_time">Reservation Time</label>
           <input
             type="time"
-            min="10:30"
-            max="21:30"
+            // min="10:30"
+            // max="21:30"
             className="form-control"
             name="reservation_time"
             id="reservation_time"

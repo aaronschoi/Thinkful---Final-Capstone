@@ -39,9 +39,10 @@ export default function Seat() {
 
   return (
     <div>
+      <h1>Seat Reservation</h1>
       <ErrorAlert error={tablesError} />
-      <form onSubmit={submitHandler} onReset={cancelHandler}>
-        <select name="table_id" class="form-select" aria-label="Select Table" id="table_id" onChange={changeHandler}>
+      <form className="d-flex" onSubmit={submitHandler} onReset={cancelHandler}>
+        <select name="table_id" className="form-select mb-2 mr-1" aria-label="Select Table" id="table_id" onChange={changeHandler}>
           <option selected>Open this select menu</option>
           {tables.map((table) => {
             return (
@@ -51,10 +52,10 @@ export default function Seat() {
             );
           })}
         </select>
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn btn-primary mb-2 mr-1 ml-1">
           Submit
         </button>
-        <button type="reset" className="btn btn-primary">
+        <button type="reset" className="btn btn-danger mb-2 mr-1 ml-1">
           Cancel
         </button>
       </form>

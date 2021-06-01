@@ -26,10 +26,11 @@ export default function NewTable() {
 
   const submitHandler = event => {
     event.preventDefault();
+    event.stopPropagation();
     const controller = new AbortController();
     setButtonDisable(state => !state)
     createTable(tableData, controller.signal)
-    .then(history.push('/'))
+    .then(() => history.push('/'))
     .catch(setTableError)
     setButtonDisable(state => !state)
   };
