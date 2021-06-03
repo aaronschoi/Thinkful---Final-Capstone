@@ -4,9 +4,8 @@ import { createReservation, updateReservation } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
 export default function NewReservation({ reservation }) {
-  const defaultReservationData = reservation
-    ? reservation
-    : {
+  let defaultReservationData = reservation ? reservation :
+    {
         first_name: "",
         last_name: "",
         mobile_number: "",
@@ -99,7 +98,6 @@ export default function NewReservation({ reservation }) {
             className="form-control"
             name="reservation_date"
             id="reservation_date"
-            onFocus="YYYY-MM-DD"
             pattern="\d{4}-\d{2}-\d{2}"
             value={reservationData.reservation_date}
             onChange={changeHandler}

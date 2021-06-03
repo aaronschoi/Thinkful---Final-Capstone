@@ -86,6 +86,7 @@ export default function Reservation({ reservations }) {
                 </tr>
               );
             }
+            return null;
           }
         )}
       </tbody>

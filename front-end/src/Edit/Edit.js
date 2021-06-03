@@ -18,7 +18,7 @@ export default function Edit() {
         return () => controller.abort();
     };
 
-    useEffect(loadReservation, [])
+    useEffect(loadReservation, [reservation_id])
 
     return(
         <div>

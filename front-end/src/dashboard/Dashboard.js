@@ -39,11 +39,14 @@ export default function Dashboard() {
   };
 
   const loadBoth = () => {
+    const controller = new AbortController();
     loadReservations();
     loadTables();
+    return () => controller.abort();
   };
 
-  useEffect(loadBoth, [dateAugment, tables])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(loadBoth, [dateAugment])
 
   //previous/today/next buttons
   const buttonSetDate = (event) => {

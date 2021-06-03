@@ -11,6 +11,7 @@ export default function Seat() {
   const [ tableId, setTableId ] = useState(0);
 
   const loadTables = () => {
+    console.log("loadTables")
     const abortController = new AbortController();
     listTables(abortController.signal).then(setTables).catch(setTablesError);
     return () => abortController.abort();
@@ -43,10 +44,10 @@ export default function Seat() {
       <ErrorAlert error={tablesError} />
       <form className="d-flex" onSubmit={submitHandler} onReset={cancelHandler}>
         <select name="table_id" className="form-select mb-2 mr-1" aria-label="Select Table" id="table_id" onChange={changeHandler}>
-          <option selected>Open this select menu</option>
-          {tables.map((table) => {
+          <option defaultValue>Open this select menu</option>
+          {tables.map((table, index) => {
             return (
-              <option value={table.table_id}>
+              <option value={table.table_id} key={index}>
                 {table.table_name} - {table.capacity}
               </option>
             );
