@@ -43,12 +43,11 @@ export default function Reservation({ reservations }) {
               reservation_time,
               people,
               status,
-            },
-            index
+            }
           ) => {
             if (status !== "finished") {
               return (
-                <tr key={index} index={index}>
+                <tr key={reservation_id}>
                   <td>{first_name}</td>
                   <td>{last_name}</td>
                   <td>{mobile_number}</td>

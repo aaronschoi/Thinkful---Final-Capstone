@@ -29,9 +29,9 @@ export default function Table({ tables }) {
             </tr>
             </thead>
             <tbody>
-                {tables.map((table, index)=> {
+                {tables.map((table)=> {
                     return(
-                        <tr key={index}>
+                        <tr key={table.table_id}>
                             <td>{table.table_name}</td>
                             <td>{table.status}</td>
                             <td>{table.capacity}</td>

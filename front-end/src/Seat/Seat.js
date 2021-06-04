@@ -45,9 +45,9 @@ export default function Seat() {
       <form className="d-flex" onSubmit={submitHandler} onReset={cancelHandler}>
         <select name="table_id" className="form-select mb-2 mr-1" aria-label="Select Table" id="table_id" onChange={changeHandler}>
           <option defaultValue>Open this select menu</option>
-          {tables.map((table, index) => {
+          {tables.map((table) => {
             return (
-              <option value={table.table_id} key={index}>
+              <option value={table.table_id} key={table.table_id}>
                 {table.table_name} - {table.capacity}
               </option>
             );
